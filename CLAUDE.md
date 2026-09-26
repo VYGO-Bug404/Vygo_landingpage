@@ -3,6 +3,13 @@
 Landing estática (HTML + CSS + JS, sin build). Antes de cambiar diseño, respeta el
 **Manual de identidad visual v3.0 · 2026**. Resumen operativo:
 
+## Páginas
+- `index.html`: landing.
+- `encuesta.html` + `js/encuesta.js`: estudio de mercado. Las preguntas viven en el arreglo `QUESTIONS`;
+  los textos son los del instrumento original, no los reescribas sin pedirlo (afectan el análisis).
+  Los `id` de pregunta son las columnas de la hoja de respuestas: si cambias uno, cámbialo también en
+  `tools/encuesta-google-sheets.gs`.
+
 ## Stack
 - Sin frameworks ni dependencias. No agregues build steps sin que se pida.
 - Valores editables (fecha, encuesta, correo, newsletter) solo en `js/config.js`.

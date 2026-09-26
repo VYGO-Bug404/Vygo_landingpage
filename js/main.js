@@ -78,6 +78,8 @@
   if (survey && cfg.surveyUrl) {
     survey.href = cfg.surveyUrl;
     survey.hidden = false;
+    // Si la encuesta vive en este mismo sitio, se abre en la misma pestaña
+    if (!/^https?:/i.test(cfg.surveyUrl)) survey.removeAttribute('target');
   }
 
   if (cfg.contactEmail) {

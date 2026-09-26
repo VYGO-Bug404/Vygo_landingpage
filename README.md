@@ -16,6 +16,12 @@ Sin frameworks ni build: HTML, CSS y JavaScript puros. Se sube tal cual a cualqu
 | — | Hoja de ruta | `#hoja-de-ruta` |
 | 5 | Lanzamiento: fecha, encuesta, newsletter y contacto | `#lanzamiento` |
 
+Además hay una página aparte, **`encuesta.html`**: el estudio de mercado de VYGO (18 preguntas en
+5 secciones), una pregunta por pantalla, con la ruta de la marca como barra de progreso.
+Se contesta tocando o con el teclado (letras A–E y Enter), guarda el avance en el navegador
+si la persona sale y regresa, y acepta `?utm_source=whatsapp` (o cualquier canal) para saber
+de dónde llegó cada respuesta.
+
 ## Antes de publicar: edita `js/config.js`
 
 Todo lo que cambia seguido vive en un solo archivo:
@@ -23,11 +29,25 @@ Todo lo que cambia seguido vive en un solo archivo:
 ```js
 window.VYGO_CONFIG = {
   launchDate: '2026-11-30',                 // fecha de salida (o null = "Sale muy pronto.")
-  surveyUrl: 'https://forms.gle/REEMPLAZAR', // liga de la encuesta de interés
+  surveyUrl: 'encuesta.html',               // liga de la encuesta (la propia del sitio)
+  surveyEndpoint: '',                       // a dónde se mandan las respuestas (ver abajo)
   contactEmail: 'marca@vygo.app',           // correo de contacto
   newsletterEndpoint: ''                    // endpoint del formulario (ver abajo)
 };
 ```
+
+### Respuestas de la encuesta → Google Sheets
+
+1. Crea una hoja de cálculo nueva y abre *Extensiones → Apps Script*.
+2. Pega el contenido de `tools/encuesta-google-sheets.gs` y guarda.
+3. *Implementar → Nueva implementación → Aplicación web*, ejecutar como **Yo**, acceso **Cualquier usuario**.
+4. Copia la URL que termina en `/exec` y pégala en `surveyEndpoint`.
+
+Cada respuesta llega como una fila en la pestaña *Respuestas*, con una columna por pregunta
+(los precios de Van Westendorp como números, en MXN / mes), más `origen`, `duracion_segundos`
+y `enviado_en`. También sirve cualquier servicio que reciba JSON por `POST` (por ejemplo Formspree).
+
+> Sin `surveyEndpoint` la encuesta se puede contestar pero **las respuestas no se guardan**.
 
 ### Newsletter
 
@@ -54,15 +74,19 @@ python3 -m http.server 8000
 ## Estructura
 
 ```
-index.html                 Página completa (incluye el logo, isotipo y pin como símbolos SVG)
+index.html                 Landing completa (incluye el logo, isotipo y pin como símbolos SVG)
+encuesta.html              Estudio de mercado, una pregunta por pantalla
 css/fonts.css              Outfit y Nunito servidas desde el sitio
 css/styles.css             Sistema visual (tokens de color, tipografía, radios, secciones)
 js/config.js               Valores editables
+css/encuesta.css           Estilos propios de la encuesta
 js/main.js                 Ruta animada, temporizador, cuenta regresiva y formulario
+js/encuesta.js             Preguntas, navegación, guardado de avance y envío
 assets/brand/              Logo, isotipo y pin vectorizados del manual
 assets/trama/              Trama de flujo y teselación del marcador
 assets/fonts/              Tipografías (SIL Open Font License)
 tools/generar-trama.py     Regenera las tramas con otra semilla o color
+tools/encuesta-google-sheets.gs  Receptor de respuestas para Google Sheets
 CLAUDE.md                  Reglas de marca para seguir iterando con Claude Code
 ```
 
