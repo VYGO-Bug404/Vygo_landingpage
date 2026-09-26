@@ -441,3 +441,23 @@
   .welcome__visual .route { max-width: 220px; }
   .welcome__title { font-size: 40px; }
 }
+
+.welcome__legal { font-size: 14px; color: var(--ink-3); }
+.welcome__legal a { color: var(--cobalt); font-weight: 700; }
+.done__queued {
+  max-width: 48ch;
+  padding: 14px 18px;
+  border-radius: var(--r-md);
+  background: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.setup-warning {
+  padding: 14px 18px;
+  border-radius: var(--r-md);
+  background: var(--indigo);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+}

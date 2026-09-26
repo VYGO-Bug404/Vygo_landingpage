@@ -23,8 +23,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      # Solo se publica lo que ve la gente (sin README, CLAUDE.md ni tools/)
+      - name: Preparar sitio
+        run: |
+          mkdir _site
+          cp index.html encuesta.html aviso-de-privacidad.html 404.html robots.txt _site/
+          cp -r css js assets _site/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4

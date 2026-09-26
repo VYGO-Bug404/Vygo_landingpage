@@ -10,7 +10,9 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="VYGO · No es magia, es Vygo.">
   <meta property="og:description" content="El copiloto del reparto multiapp: tres apps, un solo turno.">
-  <meta property="og:image" content="assets/og-image.png">
+  <meta property="og:image" content="https://vygo-bug404.github.io/Vygo_landingpage/assets/og-image.png">
+  <meta property="og:url" content="https://vygo-bug404.github.io/Vygo_landingpage/">
+  <link rel="canonical" href="https://vygo-bug404.github.io/Vygo_landingpage/">
   <meta property="og:locale" content="es_MX">
   <meta name="twitter:card" content="summary_large_image">
 
@@ -370,7 +372,12 @@
               <label class="toggle"><input type="checkbox" name="apps" value="Otra"><span>Otra</span></label>
             </fieldset>
 
-            <p class="form__hint">Te das de baja cuando quieras.</p>
+            <div class="hp" aria-hidden="true">
+              <label for="website">No llenes este campo</label>
+              <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+            </div>
+
+            <p class="form__hint">Te das de baja cuando quieras. Consulta el <a href="aviso-de-privacidad.html">aviso de privacidad</a>.</p>
             <p class="form__msg" role="status" aria-live="polite"></p>
           </form>
         </div>
@@ -404,12 +411,14 @@
     <div class="footer__bottom">
       <span>© <span data-year>2026</span> VYGO · Equipo Bug404</span>
       <span>Nacido en HackMTY 2026 · Reto The Courier de Infosys</span>
+      <a href="aviso-de-privacidad.html">Aviso de privacidad</a>
       <a data-contact-text href="#"></a>
     </div>
   </div>
 </footer>
 
 <script src="js/config.js"></script>
+<script src="js/enviar.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

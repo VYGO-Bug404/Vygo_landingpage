@@ -136,8 +136,15 @@
         return;
       }
 
+      // Trampa para bots: un humano nunca llena este campo oculto
+      var trap = form.querySelector('input[name="website"]');
+      if (trap && trap.value) { form.reset(); say('Listo. Te avisamos el día que salga.', 'ok'); return; }
+
+      // Mismo endpoint que la encuesta, salvo que se configure uno propio
+      var endpoint = cfg.newsletterEndpoint || cfg.surveyEndpoint;
+
       // Sin endpoint: abre un correo prellenado
-      if (!cfg.newsletterEndpoint) {
+      if (!endpoint || !window.VYGO_SEND) {
         var body = 'Quiero que me avisen cuando salga VYGO.%0A%0ACorreo: ' + encodeURIComponent(email) +
           (apps.length ? '%0AApps: ' + encodeURIComponent(apps.join(', ')) : '');
         window.location.href = 'mailto:' + (cfg.contactEmail || '') + '?subject=' +
@@ -146,23 +153,28 @@
         return;
       }
 
-      var data = new FormData();
-      data.append('email', email);
-      data.append('apps', apps.join(', '));
-      data.append('origen', 'landing');
+      var params = new URLSearchParams(window.location.search);
+      var payload = {
+        tipo: 'newsletter',
+        email: email,
+        apps: apps.join('; '),
+        origen: params.get('utm_source') || params.get('origen') || 'landing',
+        enviado_en: new Date().toISOString()
+      };
 
       button.disabled = true;
       say('Guardando…', '');
-      fetch(cfg.newsletterEndpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } })
-        .then(function (res) {
-          if (!res.ok) throw new Error('HTTP ' + res.status);
+      window.VYGO_SEND.send(endpoint, payload)
+        .then(function (how) {
           form.reset();
-          say('Listo. Te avisamos el día que salga.', 'ok');
+          say(how === 'queued'
+            ? 'Sin señal ahorita: guardamos tu correo y se manda solo al volver el internet.'
+            : 'Listo. Te avisamos el día que salga.', 'ok');
         })
         .catch(function () {
           say('No se pudo guardar tu correo. Intenta de nuevo en un momento.', 'error');
         })
-        .finally(function () { button.disabled = false; });
+        .then(function () { button.disabled = false; });
     });
   }
 })();

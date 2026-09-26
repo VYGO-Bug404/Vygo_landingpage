@@ -277,15 +277,17 @@
         el('span', { class: 'chip chip--green' }, ['Estudio de mercado VYGO']),
         el('h1', { class: 'welcome__title', id: 'welcome-title', tabindex: '-1', 'data-focus': true }, ['Cuéntanos cómo repartes.']),
         el('p', { class: 'welcome__text' }, ['Estamos desarrollando VYGO, un copiloto inteligente para repartidores que usan Uber Eats, Rappi y DiDi Food. Agrupa pedidos compatibles en una sola ruta para que ganes más y recorras menos kilómetros.']),
-        el('p', { class: 'welcome__text' }, ['Esta encuesta es confidencial y nos ayuda a adaptar VYGO a tu realidad en la calle.']),
+        el('p', { class: 'welcome__text' }, ['Esta encuesta es confidencial y nos ayuda a adaptar VYGO a tu realidad en la calle. No te pedimos nombre, teléfono ni correo.']),
         el('ul', { class: 'welcome__facts', role: 'list' }, [
           el('li', { class: 'fact' }, [el('strong', {}, ['18']), el('span', {}, ['preguntas'])]),
           el('li', { class: 'fact' }, [el('strong', {}, ['4 min']), el('span', {}, ['aprox.'])]),
           el('li', { class: 'fact' }, [el('strong', {}, ['5']), el('span', {}, ['secciones'])])
         ]),
         actions,
-        el('p', { class: 'welcome__keys' }, ['En computadora puedes contestar con las letras del teclado y avanzar con Enter.'])
-      ])
+        el('p', { class: 'welcome__keys' }, ['En computadora puedes contestar con las letras del teclado y avanzar con Enter.']),
+        el('p', { class: 'welcome__legal' }, ['Al contestar aceptas nuestro ', el('a', { href: 'aviso-de-privacidad.html' }, ['aviso de privacidad']), '.'])
+      ]),
+      !cfg.surveyEndpoint && !cfg.demoMode ? el('p', { class: 'setup-warning', role: 'note' }, ['Modo prueba: falta conectar el envío (surveyEndpoint en js/config.js). Las respuestas todavía no se guardan.']) : null
     ]);
   }
 
@@ -502,6 +504,7 @@
         el('div', { class: 'done__visual', 'aria-hidden': 'true' }, [route]),
         el('h1', { class: 'done__title', id: 'done-title', tabindex: '-1', 'data-focus': true }, ['Listo. Ruta completa.']),
         el('p', { class: 'done__text' }, ['Gracias por contarnos cómo repartes. Con tus respuestas ajustamos VYGO a lo que de verdad pasa en la calle.']),
+        sentState === 'queued' ? el('p', { class: 'done__queued' }, ['Te quedaste sin señal: tus respuestas se guardaron en este teléfono y se mandan solas cuando vuelvas a tener internet.']) : null,
         recap.length ? el('ul', { class: 'done__recap', role: 'list', 'aria-label': 'Resumen de tus respuestas' },
           recap.map(function (r) { return el('li', { class: 'chip chip--soft' }, [r]); })) : null,
         el('div', { class: 'done__actions' }, [
@@ -574,37 +577,31 @@
     return out;
   }
 
+  var sentState = 'sent';
+
   function submit() {
     var payload = flatten();
+    payload.tipo = 'encuesta';
     var endpoint = cfg.surveyEndpoint;
-    var finish = function () {
+    var finish = function (how) {
+      sentState = how;
       clearSaved();
       state.step = QUESTIONS.length;
       render(1);
     };
 
-    if (cfg.demoMode || !endpoint) {
-      if (!endpoint && !cfg.demoMode) console.warn('[VYGO] Falta surveyEndpoint en js/config.js: la respuesta no se envió.', payload);
-      finish();
+    if (cfg.demoMode) { finish('sent'); return; }
+    if (!endpoint) {
+      console.error('[VYGO] Falta surveyEndpoint en js/config.js: esta respuesta NO se guardó.', payload);
+      finish('sent');
       return;
     }
 
     btnNext.disabled = true;
     btnNext.textContent = 'Enviando…';
-    var status = document.getElementById('send-status');
-    status.textContent = '';
+    document.getElementById('send-status').textContent = '';
 
-    var isAppsScript = /script\.google\.com/.test(endpoint);
-    var req = isAppsScript
-      // Apps Script: texto plano sin preflight; la respuesta es opaca
-      ? fetch(endpoint, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
-      : fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(payload) })
-          .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res; });
-
-    req.then(finish).catch(function () {
-      status.textContent = 'No se pudieron enviar tus respuestas. Revisa tu conexión y vuelve a tocar Enviar; no se borró nada.';
-      updateActions();
-    });
+    window.VYGO_SEND.send(endpoint, payload).then(finish);
   }
 
   /* ---------- Arranque ---------- */

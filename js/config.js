@@ -5,7 +5,7 @@
 window.VYGO_CONFIG = {
   // Fecha de salida (formato AAAA-MM-DD, hora de Monterrey).
   // Déjala en null para mostrar "Sale muy pronto." y ocultar la cuenta regresiva.
-  launchDate: '2026-11-30', // TODO: confirmar fecha real
+  launchDate: null, // TODO: pon la fecha real, ej. '2026-11-30' (muestra cuenta regresiva)
 
   // Liga a la encuesta de interés. Por defecto, la encuesta propia del sitio.
   // Si queda vacía, el botón de la encuesta se oculta.
